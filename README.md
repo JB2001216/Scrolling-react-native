@@ -7,7 +7,7 @@ Simple port of DOMElement.scrollIntoView() function, with some extra useful feat
 ```
 yarn add Scrolling-react-native
 // or
-npm install react-native-scroll-into-view --save
+npm install Scrolling-react-native --save
 ```
 
 There is **no native code** and this library is compatible with Expo.
@@ -164,7 +164,7 @@ The ES6 named exports are:
 - Imperative API
 - Declarative component
 - Configuration at many levels
-- Support for wrapped ScrollView (`react-native-keyboard-aware-scroll-view`, Glamorous-native...)
+- Support for wrapped ScrollView (`Scrolling-react-native`, Glamorous-native...)
 - Support for `Animated.ScrollView` with native driver
 
 
