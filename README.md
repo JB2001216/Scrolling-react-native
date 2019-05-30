@@ -164,7 +164,7 @@ The ES6 named exports are:
 - Imperative API
 - Declarative component
 - Configuration at many levels
-- Support for wrapped ScrollView (`Scrolling-react-native`, Glamorous-native...)
+- Support for wrapped ScrollView (`react-native-keyboard-aware-scroll-view`, Glamorous-native...)
 - Support for `Animated.ScrollView` with native driver
 
 
