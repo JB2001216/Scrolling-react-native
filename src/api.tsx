@@ -1,16 +1,18 @@
 import React from 'react';
-import {
-  View,
-  ScrollView,
-} from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { throttle } from './utils';
 import { FullOptions, normalizeOptions, PartialOptions } from './config';
 
-
-export const scrollIntoView = async (scrollView: ScrollView, view: View, scrollY: number, options: PartialOptions) => {
+export const scrollIntoView = async (
+  scrollView: ScrollView,
+  view: View,
+  scrollY: number,
+  options: PartialOptions,
+) => {
   const {
+    align,
     animated,
-    getScrollPosition,
+    computeScrollY,
     measureElement,
     insets,
   } = normalizeOptions(options);
@@ -20,26 +22,31 @@ export const scrollIntoView = async (scrollView: ScrollView, view: View, scrollY
     measureElement(view),
   ]);
 
-  const y = getScrollPosition(scrollViewLayout, viewLayout, scrollY, insets);
+  const newScrollY = computeScrollY(
+    scrollViewLayout,
+    viewLayout,
+    scrollY,
+    insets,
+    align,
+  );
 
   scrollView
     .getScrollResponder()
     // @ts-ignore
-    .scrollResponderScrollTo({ x: 0, y, animated });
+    .scrollResponderScrollTo({ x: 0, y: newScrollY, animated });
 };
 
-type GetScrollView = () => ScrollView
-type GetScrollY = () => number
-type GetDefaultOptions = () => FullOptions
+type GetScrollView = () => ScrollView;
+type GetScrollY = () => number;
+type GetDefaultOptions = () => FullOptions;
 
 export type ScrollIntoViewDependencies = {
-  getScrollView: GetScrollView
-  getScrollY: GetScrollY
-  getDefaultOptions: GetDefaultOptions
-}
+  getScrollView: GetScrollView;
+  getScrollY: GetScrollY;
+  getDefaultOptions: GetDefaultOptions;
+};
 
 export class ScrollIntoViewAPI {
-
   dependencies: ScrollIntoViewDependencies;
 
   constructor(dependencies: ScrollIntoViewDependencies) {
@@ -78,6 +85,7 @@ export class ScrollIntoViewAPI {
       options,
     );
   }, 16);
+
   scrollIntoViewImmediate = (view: View, options: PartialOptions) => {
     return scrollIntoView(
       this.dependencies.getScrollView(),

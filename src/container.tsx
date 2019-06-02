@@ -1,14 +1,10 @@
-import React, { ComponentClass, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react';
+import React, { ReactNode, ReactNodeArray } from 'react';
 import PropTypes from 'prop-types';
-import {
-  View, ViewProps,
-} from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { throttle } from './utils';
-import { PartialOptions, OptionKeys,
-  OptionKey } from './config';
+import { PartialOptions, OptionKeys, OptionKey } from './config';
 import { ScrollIntoViewAPI } from './api';
-import { injectAPI } from './context';
-
+import { APIConsumer } from './context';
 
 const showNotInContextWarning = throttle(() => {
   console.warn(
@@ -16,21 +12,20 @@ const showNotInContextWarning = throttle(() => {
   );
 }, 5000);
 
-
 type ContainerProps = {
-  enabled: boolean
-  scrollIntoViewKey: string | number | boolean
-  animated: boolean
-  immediate: boolean
-  onMount: boolean
-  onUpdate: boolean
-  scrollIntoViewOptions: PartialOptions
-  scrollIntoViewAPI: ScrollIntoViewAPI
-} & PartialOptions & ViewProps
+  enabled?: boolean;
+  scrollIntoViewKey?: string | number | boolean;
+  animated?: boolean;
+  immediate?: boolean;
+  onMount?: boolean;
+  onUpdate?: boolean;
+  scrollIntoViewOptions?: PartialOptions;
+  scrollIntoViewAPI?: ScrollIntoViewAPI;
+  children?: ReactNode | ReactNodeArray;
+} & PartialOptions &
+  ViewProps;
 
-class ContainerBase extends React.Component<ContainerProps> {
-
-
+export class ContainerBase extends React.Component<ContainerProps> {
   static propTypes = {
     // if enabled, will scrollIntoView on mount + on update (if it was previously disabled)
     enabled: PropTypes.bool.isRequired,
@@ -49,7 +44,6 @@ class ContainerBase extends React.Component<ContainerProps> {
     // scroll into view on update (if enabled)
     onUpdate: PropTypes.bool.isRequired,
   };
-
 
   container = React.createRef<View>();
 
@@ -99,7 +93,7 @@ class ContainerBase extends React.Component<ContainerProps> {
   }
 
   getPropsOptions = () => {
-    const options = {
+    const options: PartialOptions = {
       ...this.props.scrollIntoViewOptions,
     };
     // Allow option shortcuts like animated={true}
@@ -121,7 +115,10 @@ class ContainerBase extends React.Component<ContainerProps> {
         ...this.getPropsOptions(),
         ...providedOptions,
       };
-      this.props.scrollIntoViewAPI.scrollIntoView(this.container.current!, options);
+      this.props.scrollIntoViewAPI!.scrollIntoView(
+        this.container.current!,
+        options,
+      );
     }
   };
 
@@ -138,8 +135,16 @@ class ContainerBase extends React.Component<ContainerProps> {
   }
 }
 
-type PartialContainerProps = Partial<ContainerProps>
-
-export const Container = injectAPI(
-  ContainerBase as ComponentClass<PartialContainerProps>,
+export const Container = React.forwardRef<ContainerBase, ContainerProps>(
+  (props, ref) => (
+    <APIConsumer>
+      {(scrollIntoViewAPI: ScrollIntoViewAPI) => (
+        <ContainerBase
+          ref={ref}
+          {...props}
+          scrollIntoViewAPI={scrollIntoViewAPI}
+        />
+      )}
+    </APIConsumer>
+  ),
 );
